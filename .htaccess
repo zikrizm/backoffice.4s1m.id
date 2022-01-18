@@ -1,10 +1,6 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-<<<<<<< HEAD
     RewriteCond %{HTTPS} !on
     RewriteRule ^.*$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-=======
-
->>>>>>> 34186e4ae0035d673156de11a45b43688c91a9d4
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
