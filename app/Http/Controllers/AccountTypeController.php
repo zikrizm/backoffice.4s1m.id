@@ -15,7 +15,11 @@ class AccountTypeController extends Controller
     public function index()
     {
         //
+<<<<<<< HEAD
     } 
+=======
+    }
+>>>>>>> 34186e4ae0035d673156de11a45b43688c91a9d4
 
     /**
      * Show the form for creating a new resource.
