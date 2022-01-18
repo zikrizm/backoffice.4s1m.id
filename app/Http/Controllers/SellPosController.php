@@ -2561,4 +2561,5 @@ class SellPosController extends Controller
         $mpdf->WriteHTML($body);
         $mpdf->Output('PACKINGSLIP-'.$receipt_details->invoice_no.'.pdf', 'I');
     }
+
 }

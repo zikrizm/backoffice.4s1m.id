@@ -368,7 +368,12 @@ class SellController extends Controller
                         } else {
                             $html .= '<li><a href="#" data-href="' . action('SellController@viewMedia', ["model_id" => $row->id, "model_type" => "App\Transaction", 'model_media_type' => 'shipping_document']) . '" class="btn-modal" data-container=".view_modal"><i class="fas fa-paperclip" aria-hidden="true"></i>' . __("lang_v1.shipping_documents") . '</a></li>';
                         }
-
+                        if($row->mobile){
+                            $tanggal =  $row->due_date;
+                            $url = $row->invoice_token? route('show_invoice', ['token' => $row->invoice_token]):'Belum Di Izinkan';
+                            $text = 'Kepada Pelanggan yang terhormat,Kami ingin memberitahukan Invoice No. '.$row->invoice_no.' Telah melewati jatoh tempo pada tanggal '.$tanggal.' Mohon segera lakukan pembayaran. Mohon informasikan kami jika telah melakukan pembayaran. Terimakasih atas Kerjasama nya. Link Invoice: '.$url;
+                            $html .= '<li><a href="' . 'https://wa.me/'.$row->mobile.'/?text='.$text . '"><i class="fab fa-whatsapp" style="padding-right:10px"></i> ' . 'Kirim WA Pembeli' . '</a></li>';
+                        }
                         $html .= '</ul></div>';
 
                         return $html;

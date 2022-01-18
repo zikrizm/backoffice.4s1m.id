@@ -4529,6 +4529,7 @@ class TransactionUtil extends Util
                     'transactions.staff_note',
                     'transactions.shipping_details',
                     'transactions.document',
+                    'transactions.invoice_token',
                     'transactions.shipping_custom_field_1',
                     'transactions.shipping_custom_field_2',
                     'transactions.shipping_custom_field_3',
