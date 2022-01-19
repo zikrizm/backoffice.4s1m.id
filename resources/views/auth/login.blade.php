@@ -3,22 +3,6 @@
 
 @section('content')
 <div class="col-md-12 col-xs-12">
-    <div class="col-md-3 col-xs-4" style="text-align: left;">
-        <select class="form-control input-sm" id="change_lang" style="margin: 10px;">
-            @foreach(config('constants.langs') as $key => $val)
-            <option value="{{$key}}" @if( (empty(request()->lang) && config('app.locale') == $key)
-                || request()->lang == $key)
-                selected
-                @endif
-                >
-                {{$val['full_name']}}
-            </option>
-            @endforeach
-        </select>
-    </div>
-
-</div>
-<div class="col-md-12 col-xs-12">
     <div class="col-md-3 col-xs-3" style="text-align: left;"></div>
     <div class="col-md-6 col-xs-6"
         style="border-radius:15px;overflow:hidden;background-color:blue;padding-right: 0px;padding-left: 0px;">
@@ -30,7 +14,7 @@
 <div class="col-md-3 col-xs-12" style="text-align: left;"></div>
 <div class="login-form col-md-6 col-xs-12 right-col-content">
     <div style="background-color:#7272728a; padding:15px;border-radius:15px">
-        <p class="form-header text-white">@lang('lang_v1.login')</p>
+        <p class="form-header text-white" style="text-align: center">@lang('lang_v1.login')</p>
 
         <form method="POST" action="{{ route('login') }}" id="login-form">
             {{ csrf_field() }}
@@ -101,6 +85,22 @@
     </div>
 </div>
 <div class="col-md-3 col-xs-3" style="text-align: left;"></div>
+{{-- <div class="" style="width: 100%;height:50px;display:flex;justify-content:center">
+    <div class="" style="text-align: left;width:100px;">
+        <select class="form-control input-sm" id="change_lang" style="margin: 10px">
+            @foreach(config('constants.langs') as $key => $val)
+            <option value="{{$key}}" @if( (empty(request()->lang) && config('app.locale') == $key)
+                || request()->lang == $key)
+                selected
+                @endif
+                >
+                {{$val['full_name']}}
+            </option>
+            @endforeach
+        </select>
+    </div>
+
+</div> --}}
 @if(config('app.env') == 'demo')
 <div class="col-md-12 col-xs-12" style="padding-bottom: 30px;">
     @component('components.widget', ['class' => 'box-primary', 'header' => '<h4 class="text-center">Demo Shops
