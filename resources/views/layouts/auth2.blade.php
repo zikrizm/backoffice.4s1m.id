@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
 <html>
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -10,7 +11,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title') - {{ config('app.name', 'POS') }}</title> 
+    <title>@yield('title') - {{ config('app.name', 'POS') }}</title>
 
     @include('layouts.partials.css')
 
@@ -23,71 +24,90 @@
 <body>
     @inject('request', 'Illuminate\Http\Request')
     @if (session('status'))
-        <input type="hidden" id="status_span" data-status="{{ session('status.success') }}" data-msg="{{ session('status.msg') }}">
+    <input type="hidden" id="status_span" data-status="{{ session('status.success') }}"
+        data-msg="{{ session('status.msg') }}">
     @endif
-    <div class="container-fluid">
-        <div class="row eq-height-row">
-            <div class="col-md-5 col-sm-5 hidden-xs left-col eq-height-col" >
-                <div class="left-col-content login-header"> 
+
+    <div class="container-fluid" {{--
+        style="background-image: url(https://s3-ap-southeast-1.amazonaws.com/moladin.assets/blog/wp-content/uploads/2019/10/31134933/1-59.jpg);background-repeat:no-repeat;background-size:cover;height:100vh">
+        --}}
+        style="
+        background: rgb(0,0,0);
+        background: linear-gradient(180deg, rgba(0,0,0,1) 65%, rgba(255,0,0,0.938813025210084) 100%);
+        100%);height:100vh">
+        @yield('content')
+
+        {{-- <div class=" row eq-height-row">
+            <div class="col-md-5 col-sm-5 hidden-xs left-col eq-height-col">
+                <div class="left-col-content login-header">
                     <div style="margin-top: 50%;">
-                    <a href="/">
-                    @if(file_exists(public_path('uploads/logo.png')))
-                        <img src="/uploads/logo.png" class="img-rounded" alt="Logo" width="150">
-                    @else
-                       {{ config('app.name', 'ultimatePOS') }}
-                    @endif 
-                    </a>
-                    <br/>
-                    @if(!empty(config('constants.app_title')))
+                        <a href="/">
+                            @if(file_exists(public_path('uploads/logo.png')))
+                            <img src="/uploads/logo.png" class="img-rounded" alt="Logo" width="150">
+                            @else
+                            {{ config('app.name', 'ultimatePOS') }}
+                            @endif
+                        </a>
+                        <br />
+                        @if(!empty(config('constants.app_title')))
                         <small>{{config('constants.app_title')}}</small>
-                    @endif
+                        @endif
                     </div>
                 </div>
             </div>
             <div class="col-md-7 col-sm-7 col-xs-12 right-col eq-height-col">
                 <div class="row">
-                <div class="col-md-3 col-xs-4" style="text-align: left;">
-                    <select class="form-control input-sm" id="change_lang" style="margin: 10px;">
-                    @foreach(config('constants.langs') as $key => $val)
-                        <option value="{{$key}}" 
-                            @if( (empty(request()->lang) && config('app.locale') == $key) 
-                            || request()->lang == $key) 
-                                selected 
-                            @endif
-                        >
-                            {{$val['full_name']}}
-                        </option>
-                    @endforeach
-                    </select>
-                </div>
-                <div class="col-md-9 col-xs-8" style="text-align: right;padding-top: 10px;">
-                    @if(!($request->segment(1) == 'business' && $request->segment(2) == 'register'))
+                    <div class="col-md-3 col-xs-4" style="text-align: left;">
+                        <select class="form-control input-sm" id="change_lang" style="margin: 10px;">
+                            @foreach(config('constants.langs') as $key => $val)
+                            <option value="{{$key}}" @if( (empty(request()->lang) && config('app.locale') == $key)
+                                || request()->lang == $key)
+                                selected
+                                @endif
+                                >
+                                {{$val['full_name']}}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-9 col-xs-8" style="text-align: right;padding-top: 10px;">
+                        @if(!($request->segment(1) == 'business' && $request->segment(2) == 'register'))
                         <!-- Register Url -->
                         @if(config('constants.allow_registration'))
-                            <a href="{{ route('business.getRegister') }}@if(!empty(request()->lang)){{'?lang=' . request()->lang}} @endif" class="btn bg-maroon btn-flat" ><b>{{ __('business.not_yet_registered')}}</b> {{ __('business.register_now') }}</a>
-                            <!-- pricing url -->
-                            @if(Route::has('pricing') && config('app.env') != 'demo' && $request->segment(1) != 'pricing')
-                                &nbsp; <a href="{{ action('\Modules\Superadmin\Http\Controllers\PricingController@index') }}">@lang('superadmin::lang.pricing')</a>
-                            @endif
+                        <a href="{{ route('business.getRegister') }}@if(!empty(request()->lang)){{'?lang=' . request()->lang}} @endif"
+                            class="btn bg-maroon btn-flat"><b>{{ __('business.not_yet_registered')}}</b> {{
+                            __('business.register_now') }}</a>
+                        <!-- pricing url -->
+                        @if(Route::has('pricing') && config('app.env') != 'demo' && $request->segment(1) != 'pricing')
+                        &nbsp; <a
+                            href="{{ action('\Modules\Superadmin\Http\Controllers\PricingController@index') }}">@lang('superadmin::lang.pricing')</a>
                         @endif
-                    @endif
-                    @if($request->segment(1) != 'login')
-                        &nbsp; &nbsp;<span class="text-white">{{ __('business.already_registered')}} </span><a href="{{ action('Auth\LoginController@login') }}@if(!empty(request()->lang)){{'?lang=' . request()->lang}} @endif">{{ __('business.sign_in') }}</a>
-                    @endif
-                </div>
-                
-                @yield('content')
+                        @endif
+                        @endif
+                        @if($request->segment(1) != 'login')
+                        &nbsp; &nbsp;<span class="text-white">{{ __('business.already_registered')}} </span><a
+                            href="{{ action('Auth\LoginController@login') }}@if(!empty(request()->lang)){{'?lang=' . request()->lang}} @endif">{{
+                            __('business.sign_in') }}</a>
+                        @endif
+                    </div>
+
                 </div>
             </div>
+        </div> --}}
+        <div class="hidden-xs"
+            style="right:0px;top:10%;position:absolute;background-size:contain;background-repeat:no-repeat;background-image:url(https://apilab.rekor.id/storage/uploads/images/image-d37301d5ac27c2d4f2a757d4a0a5f04760e1314a.png);z-index:10;width:300px;height:150px">
+        </div>
+        <div class="hidden-xs"
+            style="left:0px;bottom:10%;position:absolute;background-size:contain;background-repeat:no-repeat;background-image:url(https://apilab.rekor.id/storage/uploads/images/image-d37301d5ac27c2d4f2a757d4a0a5f04760e1314a.png);z-index:10;width:300px;height:150px">
         </div>
     </div>
 
-    
+
     @include('layouts.partials.javascripts')
-    
+
     <!-- Scripts -->
     <script src="{{ asset('js/login.js?v=' . $asset_v) }}"></script>
-    
+
     @yield('javascript')
 
     <script type="text/javascript">
