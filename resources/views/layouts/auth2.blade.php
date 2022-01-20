@@ -94,12 +94,12 @@
                 </div>
             </div>
         </div> --}}
-        <div class="hidden-xs"
+        {{-- <div class="hidden-xs"
             style="right:0px;top:10%;position:absolute;background-size:contain;background-repeat:no-repeat;background-image:url(https://apilab.rekor.id/storage/uploads/images/image-d37301d5ac27c2d4f2a757d4a0a5f04760e1314a.png);z-index:10;width:300px;height:150px">
         </div>
         <div class="hidden-xs"
             style="left:0px;bottom:10%;position:absolute;background-size:contain;background-repeat:no-repeat;background-image:url(https://apilab.rekor.id/storage/uploads/images/image-d37301d5ac27c2d4f2a757d4a0a5f04760e1314a.png);z-index:10;width:300px;height:150px">
-        </div>
+        </div> --}}
     </div>
 
 
