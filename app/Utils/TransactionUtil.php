@@ -949,11 +949,12 @@ class TransactionUtil extends Util
         $output['customer_custom_fields'] = '';
         if ($il->show_customer == 1) {
             $output['customer_label'] = !empty($il->customer_label) ? $il->customer_label : '';
-            $output['customer_name'] = !empty($customer->name) ? $customer->name: '';
+            $output['customer_name'] = !empty($customer->name) ? $customer->name: $customer->supplier_business_name;
             $output['customer_mobile'] = $customer->mobile;
-            
+            $output['customer_info'] = !empty($customer->name) ? $customer->name: $customer->supplier_business_name;
+
             if (!empty($output['customer_name']) && $receipt_printer_type != 'printer') {
-                $output['customer_info'] .= $customer->contact_address;
+                $output['customer_info'] .= $customer->supplier_business_name;
                 // if (!empty($customer->contact_address)) {
                 //     $output['customer_info'] .= '<br>';
                 // }

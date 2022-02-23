@@ -119,11 +119,14 @@
 					<!-- Waiter info -->
 				</span>
 				@endif
-
+				@php
+				// dd($receipt_details)
+				@endphp
 				<!-- customer info -->
 				@if(!empty($receipt_details->customer_info))
 				<br />
-				<b>{{ $receipt_details->customer_label }} : {{$receipt_details->customer_name}}</b>
+				<b>{{ $receipt_details->customer_label }} :
+					{{$receipt_details->customer_info??$receipt_details->customer_name}}</b>
 				@endif
 				@if(!empty($receipt_details->client_id_label))
 				<br />
