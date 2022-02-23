@@ -138,7 +138,7 @@ class LabelsController extends Controller
             $margin_left = $barcode_details->is_continuous ? 0: $barcode_details->left_margin*1;
             $paper_width = $barcode_details->paper_width*1;
             $paper_height = $barcode_details->paper_height*1;
-
+            // dd($margin_top,$margin_left);
             // print_r($paper_height);
             // echo "==";
             // print_r($margin_left);exit;
