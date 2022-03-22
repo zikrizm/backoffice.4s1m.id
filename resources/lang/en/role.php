@@ -17,6 +17,7 @@ return [
     'supplier' => 'Supplier',
     'customer' => 'Customer',
     'purchase' => 'Purchase & Stock Adjustment',
+    'stock_transfers' => 'Stock Transfers',
     'report' =>'Report',
 
     'user.view' => 'View user',
@@ -38,6 +39,9 @@ return [
     'product.create' => 'Add product',
     'product.update' => 'Edit product',
     'product.delete' => 'Delete product',
+
+    'stock_transfers.view' => 'View Stock Transfers',
+    'stock_transfers.create' => 'Add Stock Transfers',
 
     'purchase.view' => 'View purchase & Stock Adjustment',
     'purchase.create' => 'Add purchase & Stock Adjustment',

@@ -53,7 +53,7 @@ class StockTransferController extends Controller
      */
     public function index()
     {
-        if (!auth()->user()->can('purchase.view') && !auth()->user()->can('purchase.create')) {
+        if (!auth()->user()->can('stock_transfer.view') && !auth()->user()->can('stock_transfer.create')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -148,7 +148,7 @@ class StockTransferController extends Controller
      */
     public function create()
     {
-        if (!auth()->user()->can('purchase.create')) {
+        if (!auth()->user()->can('stock_transfer.create')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -184,7 +184,7 @@ class StockTransferController extends Controller
      */
     public function store(Request $request)
     {
-        if (!auth()->user()->can('purchase.create')) {
+        if (!auth()->user()->can('stock_transfer.create')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -336,7 +336,7 @@ class StockTransferController extends Controller
      */
     public function show($id)
     {
-        if (!auth()->user()->can('purchase.view')) {
+        if (!auth()->user()->can('stock_transfer.view')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -391,7 +391,7 @@ class StockTransferController extends Controller
 
     public function destroy($id)
     {
-        if (!auth()->user()->can('purchase.delete')) {
+        if (!auth()->user()->can('stock_transfer.delete')) {
             abort(403, 'Unauthorized action.');
         }
         try {
@@ -612,7 +612,7 @@ class StockTransferController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if (!auth()->user()->can('purchase.create')) {
+        if (!auth()->user()->can('stock_transfer.create')) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -792,7 +792,7 @@ class StockTransferController extends Controller
      */
     public function updateStatus(Request $request, $id)
     {
-        if (!auth()->user()->can('purchase.update')) {
+        if (!auth()->user()->can('stock_transfer.update')) {
             abort(403, 'Unauthorized action.');
         }
 

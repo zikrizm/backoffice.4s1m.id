@@ -17,6 +17,7 @@ return [
     'supplier' => 'Pemasok',
     'customer' => 'Pelanggan',
     'purchase' => 'Pembelian & Penyesuaian Stok',
+    'stock_transfers' => 'Transfer Persediaan',
     'report' =>'Laporan',
 
     'user.view' => 'Lihat pengguna',
@@ -38,6 +39,9 @@ return [
     'product.create' => 'Tambah produk',
     'product.update' => 'Edit produk',
     'product.delete' => 'Hapus produk',
+
+    'stock_transfers.view' => 'Lihat Transfer Persedian',
+    'stock_transfers.create' => 'Tambah Transfer Persedian',
 
     'purchase.view' => 'Liha pembelian & Penyesuaian Stok',
     'purchase.create' => 'Tambah pembelian & Penyesuaian Stok',
