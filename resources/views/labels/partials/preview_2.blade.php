@@ -66,7 +66,7 @@
 
 					@if(!empty($print['packing_date']) && !empty($page_product->packing_date))
 					<span style="font-size: {{14*$factor}}px">
-						<b>@lang('lang_v1.packing_date'):</b>
+						{{-- <b>@lang('lang_v1.packing_date'):</b> --}}
 						{{$page_product->packing_date}}
 					</span>
 					@endif
