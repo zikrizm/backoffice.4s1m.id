@@ -202,6 +202,8 @@
                             { data: 'selling_price', name: 'max_price', searchable: false},
                         @endcan
                         { data: 'current_stock', searchable: false},
+                        { data: 'purchase_total', searchable: false},
+                        { data: 'total_sold', searchable: false},
                         { data: 'type', name: 'products.type'},
                         { data: 'category', name: 'c1.name'},
                         { data: 'brand', name: 'brands.name'},
