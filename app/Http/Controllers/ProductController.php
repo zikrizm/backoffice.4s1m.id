@@ -233,6 +233,8 @@ class ProductController extends Controller
                         return $row->product_locations->implode('name', ', ');
                     }
                 )
+                ->addColumn('purchase_total', '@if($enable_stock == 1) {{@number_format($purchase_total)}} @else -- @endif {{$unit}}')
+                ->addColumn('total_sold', '@if($enable_stock == 1) {{@number_format($total_sold)}} @else -- @endif {{$unit}}')
                 ->editColumn('category', '{{$category}} @if(!empty($sub_category))<br/> -- {{$sub_category}}@endif')
                 ->addColumn(
                     'action',
