@@ -103,18 +103,33 @@ class ProductController extends Controller
                     DB::raw("SUM(IF(t.type='sell_transfer', sl.quantity, 0)) as total_sell_transfer")
                 );
 
+
+            $price_sub = DB::table('variations')
+                ->join('products as p', 'p.id', '=', 'variations.product_id')
+                ->where('p.business_id', $business_id)
+                ->groupBy('p.id')
+                ->select(
+                    'p.id as product_id',
+                    DB::raw('MAX(variations.sell_price_inc_tax) as max_price'),
+                    DB::raw('MIN(variations.sell_price_inc_tax) as min_price'),
+                    DB::raw('MAX(variations.dpp_inc_tax) as max_purchase_price'),
+                    DB::raw('MIN(variations.dpp_inc_tax) as min_purchase_price')
+                );
+
+
             $query = Product::with(['media'])
                 ->leftJoin('brands', 'products.brand_id', '=', 'brands.id')
                 ->join('units', 'products.unit_id', '=', 'units.id')
                 ->leftJoin('categories as c1', 'products.category_id', '=', 'c1.id')
                 ->leftJoin('categories as c2', 'products.sub_category_id', '=', 'c2.id')
                 ->leftJoin('tax_rates', 'products.tax', '=', 'tax_rates.id')
-                ->join('variations as v', 'v.product_id', '=', 'products.id')
+                // ->join('variations as v', 'v.product_id', '=', 'products.id')
                 // ->leftJoin('variation_location_details as vld', 'vld.variation_id', '=', 'v.id')
 
                 ->leftJoinSub($purchase_sub, 'purchase', 'purchase.product_id', '=', 'products.id')
                 ->leftJoinSub($sell_sub, 'sell', 'sell.product_id', '=', 'products.id')
                 ->leftJoinSub($stock_sub, 'stock', 'stock.product_id', '=', 'products.id')
+                ->leftJoinSub($price_sub, 'price', 'price.product_id', '=', 'products.id')
 
                 ->where('products.business_id', $business_id)
                 ->where('products.type', '!=', 'modifier');
@@ -160,24 +175,25 @@ class ProductController extends Controller
                 'products.product_custom_field3',
                 'products.product_custom_field4',
 
+                // DB::raw('SUM(vld.qty_available) as current_stock'),
+                // DB::raw('MAX(v.sell_price_inc_tax) as max_price'),
+                // DB::raw('MIN(v.sell_price_inc_tax) as min_price'),
+                // DB::raw('MAX(v.dpp_inc_tax) as max_purchase_price'),
+                // DB::raw('MIN(v.dpp_inc_tax) as min_purchase_price')
+
                 DB::raw('COALESCE(purchase.total_purchase, 0) as total_purchase'),
                 DB::raw('COALESCE(purchase.total_purchase_return, 0) as total_purchase_return'),
                 DB::raw('COALESCE(purchase.total_adjusted, 0) as total_adjusted'),
                 DB::raw('COALESCE(purchase.total_opening_stock, 0) as total_opening_stock'),
                 DB::raw('COALESCE(purchase.total_purchase_transfer, 0) as total_purchase_transfer'),
-
                 DB::raw('COALESCE(sell.total_sold, 0) as total_sold'),
                 DB::raw('COALESCE(sell.total_sell_return, 0) as total_sell_return'),
                 DB::raw('COALESCE(sell.total_sell_transfer, 0) as total_sell_transfer'),
-
-                // DB::raw('SUM(vld.qty_available) as current_stock'),
                 DB::raw('COALESCE(stock.current_stock, 0) as current_stock'),
-
-                DB::raw('MAX(v.sell_price_inc_tax) as max_price'),
-                DB::raw('MIN(v.sell_price_inc_tax) as min_price'),
-                DB::raw('MAX(v.dpp_inc_tax) as max_purchase_price'),
-                DB::raw('MIN(v.dpp_inc_tax) as min_purchase_price')
-
+                DB::raw('COALESCE(price.min_price, 0) as min_price'),
+                DB::raw('COALESCE(price.max_price, 0) as max_price'),
+                DB::raw('COALESCE(price.min_purchase_price, 0) as min_purchase_price'),
+                DB::raw('COALESCE(price.max_purchase_price, 0) as max_purchase_price')
             )->groupBy('products.id');
 
             $type = request()->get('type', null);
@@ -233,7 +249,7 @@ class ProductController extends Controller
                         return $row->product_locations->implode('name', ', ');
                     }
                 )
-                ->addColumn('purchase_total', '@if($enable_stock == 1) {{@number_format($purchase_total)}} @else -- @endif {{$unit}}')
+                ->addColumn('purchase_total', '@if($enable_stock == 1) {{@number_format($total_purchase)}} @else -- @endif {{$unit}}')
                 ->addColumn('total_sold', '@if($enable_stock == 1) {{@number_format($total_sold)}} @else -- @endif {{$unit}}')
                 ->editColumn('category', '{{$category}} @if(!empty($sub_category))<br/> -- {{$sub_category}}@endif')
                 ->addColumn(
