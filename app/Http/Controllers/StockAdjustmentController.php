@@ -61,20 +61,20 @@ class StockAdjustmentController extends Controller
                 'BL.id'
             )
                 ->leftJoin('users as u', 'transactions.created_by', '=', 'u.id')
-                    ->where('transactions.business_id', $business_id)
-                    ->where('transactions.type', 'stock_adjustment')
-                    ->select(
-                        'transactions.id',
-                        'transaction_date',
-                        'ref_no',
-                        'BL.name as location_name',
-                        'adjustment_type',
-                        'final_total',
-                        'total_amount_recovered',
-                        'additional_notes',
-                        'transactions.id as DT_RowId',
-                        DB::raw("CONCAT(COALESCE(u.surname, ''),' ',COALESCE(u.first_name, ''),' ',COALESCE(u.last_name,'')) as added_by")
-                    );
+                ->where('transactions.business_id', $business_id)
+                ->where('transactions.type', 'stock_adjustment')
+                ->select(
+                    'transactions.id',
+                    'transaction_date',
+                    'ref_no',
+                    'BL.name as location_name',
+                    'adjustment_type',
+                    'final_total',
+                    'total_amount_recovered',
+                    'additional_notes',
+                    'transactions.id as DT_RowId',
+                    DB::raw("CONCAT(COALESCE(u.surname, ''),' ',COALESCE(u.first_name, ''),' ',COALESCE(u.last_name,'')) as added_by")
+                );
 
             $permitted_locations = auth()->user()->permitted_locations();
             if ($permitted_locations != 'all') {
@@ -92,7 +92,7 @@ class StockAdjustmentController extends Controller
             if (!empty($location_id)) {
                 $stock_adjustments->where('transactions.location_id', $location_id);
             }
-            
+
             return Datatables::of($stock_adjustments)
                 ->addColumn('action', '<button type="button" data-href="{{  action("StockAdjustmentController@show", [$id]) }}" class="btn btn-primary btn-xs btn-modal" data-container=".view_modal"><i class="fa fa-eye" aria-hidden="true"></i> @lang("messages.view")</button>
                  &nbsp;
@@ -111,9 +111,10 @@ class StockAdjustmentController extends Controller
                     return __('stock_adjustment.' . $row->adjustment_type);
                 })
                 ->setRowAttr([
-                'data-href' => function ($row) {
-                    return  action('StockAdjustmentController@show', [$row->id]);
-                }])
+                    'data-href' => function ($row) {
+                        return  action('StockAdjustmentController@show', [$row->id]);
+                    }
+                ])
                 ->rawColumns(['final_total', 'action', 'total_amount_recovered'])
                 ->make(true);
         }
@@ -142,7 +143,7 @@ class StockAdjustmentController extends Controller
         $business_locations = BusinessLocation::forDropdown($business_id);
 
         return view('stock_adjustment.create')
-                ->with(compact('business_locations'));
+            ->with(compact('business_locations'));
     }
 
     /**
@@ -160,14 +161,14 @@ class StockAdjustmentController extends Controller
         try {
             DB::beginTransaction();
 
-            $input_data = $request->only([ 'location_id', 'transaction_date', 'adjustment_type', 'additional_notes', 'total_amount_recovered', 'final_total', 'ref_no']);
+            $input_data = $request->only(['location_id', 'transaction_date', 'adjustment_type', 'additional_notes', 'total_amount_recovered', 'final_total', 'ref_no']);
             $business_id = $request->session()->get('user.business_id');
 
             //Check if subscribed or not
             if (!$this->moduleUtil->isSubscribed($business_id)) {
                 return $this->moduleUtil->expiredResponse(action('StockAdjustmentController@index'));
             }
-        
+
             $user_id = $request->session()->get('user.id');
 
             $input_data['type'] = 'stock_adjustment';
@@ -201,11 +202,11 @@ class StockAdjustmentController extends Controller
                     }
                     $product_data[] = $adjustment_line;
 
-                    //Decrease available quantity
-                    $this->productUtil->decreaseProductQuantity(
+                    //Increase/Decrease available quantity based on sign
+                    $this->productUtil->updateProductQuantity(
+                        $input_data['location_id'],
                         $product['product_id'],
                         $product['variation_id'],
-                        $input_data['location_id'],
                         $this->productUtil->num_uf($product['quantity'])
                     );
                 }
@@ -214,33 +215,48 @@ class StockAdjustmentController extends Controller
                 $stock_adjustment->stock_adjustment_lines()->createMany($product_data);
 
                 //Map Stock adjustment & Purchase.
-                $business = ['id' => $business_id,
-                                'accounting_method' => $request->session()->get('business.accounting_method'),
-                                'location_id' => $input_data['location_id']
-                            ];
-                $this->transactionUtil->mapPurchaseSell($business, $stock_adjustment->stock_adjustment_lines, 'stock_adjustment');
+                $business = [
+                    'id' => $business_id,
+                    'accounting_method' => $request->session()->get('business.accounting_method'),
+                    'location_id' => $input_data['location_id']
+                ];
+
+                //Filter lines with negative quantity (stock reduction) for mapping
+                $lines_to_map = $stock_adjustment->stock_adjustment_lines->filter(function ($line) {
+                    return $line->quantity < 0;
+                })->map(function ($line) {
+                    $clone = clone $line;
+                    $clone->quantity = abs($line->quantity);
+                    return $clone;
+                });
+
+                if ($lines_to_map->count() > 0) {
+                    $this->transactionUtil->mapPurchaseSell($business, $lines_to_map, 'stock_adjustment');
+                }
 
                 $this->transactionUtil->activityLog($stock_adjustment, 'added', null, [], false);
             }
 
-            $output = ['success' => 1,
-                            'msg' => __('stock_adjustment.stock_adjustment_added_successfully')
-                        ];
+            $output = [
+                'success' => 1,
+                'msg' => __('stock_adjustment.stock_adjustment_added_successfully')
+            ];
 
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+
+            \Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
             $msg = trans("messages.something_went_wrong");
-                
+
             if (get_class($e) == \App\Exceptions\PurchaseSellMismatch::class) {
                 $msg = $e->getMessage();
             }
-            
-            $output = ['success' => 0,
-                            'msg' => $msg
-                        ];
+
+            $output = [
+                'success' => 0,
+                'msg' => $msg
+            ];
         }
 
         return redirect('stock-adjustments')->with('status', $output);
@@ -259,10 +275,10 @@ class StockAdjustmentController extends Controller
         }
         $business_id = request()->session()->get('user.business_id');
         $stock_adjustment = Transaction::where('transactions.business_id', $business_id)
-                    ->where('transactions.id', $id)
-                    ->where('transactions.type', 'stock_adjustment')
-                    ->with(['stock_adjustment_lines', 'location', 'business', 'stock_adjustment_lines.variation', 'stock_adjustment_lines.variation.product', 'stock_adjustment_lines.variation.product_variation'])
-                    ->first();
+            ->where('transactions.id', $id)
+            ->where('transactions.type', 'stock_adjustment')
+            ->with(['stock_adjustment_lines', 'location', 'business', 'stock_adjustment_lines.variation', 'stock_adjustment_lines.variation.product', 'stock_adjustment_lines.variation.product_variation'])
+            ->first();
 
         $lot_n_exp_enabled = false;
         if (request()->session()->get('business.enable_lot_number') == 1 || request()->session()->get('business.enable_product_expiry') == 1) {
@@ -270,12 +286,12 @@ class StockAdjustmentController extends Controller
         }
 
         $activities = Activity::forSubject($stock_adjustment)
-           ->with(['causer', 'subject'])
-           ->latest()
-           ->get();
+            ->with(['causer', 'subject'])
+            ->latest()
+            ->get();
 
         return view('stock_adjustment.show')
-                ->with(compact('stock_adjustment', 'lot_n_exp_enabled', 'activities'));
+            ->with(compact('stock_adjustment', 'lot_n_exp_enabled', 'activities'));
     }
 
     /**
@@ -317,21 +333,30 @@ class StockAdjustmentController extends Controller
                 DB::beginTransaction();
 
                 $stock_adjustment = Transaction::where('id', $id)
-                                    ->where('type', 'stock_adjustment')
-                                    ->with(['stock_adjustment_lines'])
-                                    ->first();
+                    ->where('type', 'stock_adjustment')
+                    ->with(['stock_adjustment_lines'])
+                    ->first();
 
                 //Add deleted product quantity to available quantity
                 $stock_adjustment_lines = $stock_adjustment->stock_adjustment_lines;
                 if (!empty($stock_adjustment_lines)) {
                     $line_ids = [];
                     foreach ($stock_adjustment_lines as $stock_adjustment_line) {
-                        $this->productUtil->updateProductQuantity(
-                            $stock_adjustment->location_id,
-                            $stock_adjustment_line->product_id,
-                            $stock_adjustment_line->variation_id,
-                            $this->productUtil->num_f($stock_adjustment_line->quantity)
-                        );
+                        if ($stock_adjustment_line->quantity > 0) {
+                            $this->productUtil->decreaseProductQuantity(
+                                $stock_adjustment_line->product_id,
+                                $stock_adjustment_line->variation_id,
+                                $stock_adjustment->location_id,
+                                $this->productUtil->num_f($stock_adjustment_line->quantity)
+                            );
+                        } else {
+                            $this->productUtil->updateProductQuantity(
+                                $stock_adjustment->location_id,
+                                $stock_adjustment_line->product_id,
+                                $stock_adjustment_line->variation_id,
+                                $this->productUtil->num_f(abs($stock_adjustment_line->quantity))
+                            );
+                        }
                         $line_ids[] = $stock_adjustment_line->id;
                     }
 
@@ -341,22 +366,25 @@ class StockAdjustmentController extends Controller
 
                 //Remove Mapping between stock adjustment & purchase.
 
-                $output = ['success' => 1,
-                            'msg' => __('stock_adjustment.delete_success')
-                        ];
+                $output = [
+                    'success' => 1,
+                    'msg' => __('stock_adjustment.delete_success')
+                ];
 
                 DB::commit();
             }
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
-            
-            $output = ['success' => 0,
-                            'msg' => __('messages.something_went_wrong')
-                        ];
+            \Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
+
+            $output = [
+                'success' => 0,
+                'msg' => __('messages.something_went_wrong')
+            ];
         }
         return $output;
     }
+
 
     /**
      * Return product rows
@@ -372,7 +400,8 @@ class StockAdjustmentController extends Controller
             $location_id = $request->input('location_id');
 
             $business_id = $request->session()->get('user.business_id');
-            $product = $this->productUtil->getDetailsFromVariation($variation_id, $business_id, $location_id);
+            // $product = $this->productUtil->getDetailsFromVariation($variation_id, $business_id, $location_id);
+            $product = $this->productUtil->getDetailsFromVariation($variation_id, $business_id, $location_id, false);
             $product->formatted_qty_available = $this->productUtil->num_f($product->qty_available);
 
             //Get lot number dropdown if enabled
@@ -385,9 +414,9 @@ class StockAdjustmentController extends Controller
                 }
             }
             $product->lot_numbers = $lot_numbers;
-            
+
             return view('stock_adjustment.partials.product_table_row')
-            ->with(compact('product', 'row_index'));
+                ->with(compact('product', 'row_index'));
         }
     }
 
@@ -405,8 +434,8 @@ class StockAdjustmentController extends Controller
 
         try {
             $purchase_line = PurchaseLine::where('id', $purchase_line_id)
-                                    ->with(['transaction'])
-                                    ->first();
+                ->with(['transaction'])
+                ->first();
 
             if (!empty($purchase_line)) {
                 DB::beginTransaction();
@@ -455,30 +484,33 @@ class StockAdjustmentController extends Controller
                 );
 
                 //Map Stock adjustment & Purchase.
-                $business = ['id' => $business_id,
-                                'accounting_method' => request()->session()->get('business.accounting_method'),
-                                'location_id' => $purchase_line->transaction->location_id
-                            ];
+                $business = [
+                    'id' => $business_id,
+                    'accounting_method' => request()->session()->get('business.accounting_method'),
+                    'location_id' => $purchase_line->transaction->location_id
+                ];
                 $this->transactionUtil->mapPurchaseSell($business, $stock_adjustment->stock_adjustment_lines, 'stock_adjustment', false, $purchase_line->id);
 
                 DB::commit();
 
-                $output = ['success' => 1,
-                            'msg' => __('lang_v1.stock_removed_successfully')
-                        ];
+                $output = [
+                    'success' => 1,
+                    'msg' => __('lang_v1.stock_removed_successfully')
+                ];
             }
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::emergency("File:" . $e->getFile(). "Line:" . $e->getLine(). "Message:" . $e->getMessage());
+            \Log::emergency("File:" . $e->getFile() . "Line:" . $e->getLine() . "Message:" . $e->getMessage());
             $msg = trans("messages.something_went_wrong");
-                
+
             if (get_class($e) == \App\Exceptions\PurchaseSellMismatch::class) {
                 $msg = $e->getMessage();
             }
-            
-            $output = ['success' => 0,
-                            'msg' => $msg
-                        ];
+
+            $output = [
+                'success' => 0,
+                'msg' => $msg
+            ];
         }
         return $output;
     }
