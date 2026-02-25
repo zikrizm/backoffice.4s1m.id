@@ -362,6 +362,19 @@
                 }    
             })
 
+            $(document).on('click', '#price-update-selected', function(e){
+                e.preventDefault();
+                var selected_rows = getSelectedRows();
+                
+                if(selected_rows.length > 0){
+                    $('input#selected_products_for_price_update').val(selected_rows);
+                    $('form#bulk_price_update_form').submit();
+                } else{
+                    $('input#selected_products').val('');
+                    swal('@lang("lang_v1.no_row_selected")');
+                }    
+            })
+
             $('table#product_table tbody').on('click', 'a.activate-product', function(e){
                 e.preventDefault();
                 var href = $(this).attr('href');

@@ -87,6 +87,9 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/products/list', 'ProductController@getProducts');
     Route::get('/products/list-no-variation', 'ProductController@getProductsWithoutVariations');
     Route::post('/products/bulk-edit', 'ProductController@bulkEdit');
+    Route::post('/products/bulk-price-update', 'ProductBulkPriceUpdateController@index');
+    Route::post('/products/bulk-price-update-action', 'ProductBulkPriceUpdateController@bulkUpdate');
+    Route::get('/products/get-product-for-price-update/{product_id}', 'ProductBulkPriceUpdateController@getProductForPriceUpdate');
     Route::post('/products/bulk-update', 'ProductController@bulkUpdate');
     Route::post('/products/bulk-update-location', 'ProductController@updateProductLocation');
     Route::get('/products/get-product-to-edit/{product_id}', 'ProductController@getProductToEdit');

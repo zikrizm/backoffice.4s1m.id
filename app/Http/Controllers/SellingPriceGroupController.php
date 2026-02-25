@@ -77,7 +77,11 @@ class SellingPriceGroupController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        return view('selling_price_group.create');
+        $business_id = request()->session()->get('user.business_id');
+        $price_groups = SellingPriceGroup::where('business_id', $business_id)->pluck('name', 'id')->toArray();
+        $price_groups = [0 => __('lang_v1.default_selling_price')] + $price_groups;
+
+        return view('selling_price_group.create')->with(compact('price_groups'));
     }
 
     /**
@@ -93,7 +97,7 @@ class SellingPriceGroupController extends Controller
         }
 
         try {
-            $input = $request->only(['name', 'description']);
+            $input = $request->only(['name', 'description', 'base_price_group_id', 'calc_type', 'calc_amount']);
             $business_id = $request->session()->get('user.business_id');
             $input['business_id'] = $business_id;
 
@@ -144,8 +148,14 @@ class SellingPriceGroupController extends Controller
             $business_id = request()->session()->get('user.business_id');
             $spg = SellingPriceGroup::where('business_id', $business_id)->find($id);
 
+            $price_groups = SellingPriceGroup::where('business_id', $business_id)
+                                ->where('id', '!=', $id)
+                                ->pluck('name', 'id')
+                                ->toArray();
+            $price_groups = [0 => __('lang_v1.default_selling_price')] + $price_groups;
+
             return view('selling_price_group.edit')
-                ->with(compact('spg'));
+                ->with(compact('spg', 'price_groups'));
         }
     }
 
@@ -164,12 +174,15 @@ class SellingPriceGroupController extends Controller
 
         if (request()->ajax()) {
             try {
-                $input = $request->only(['name', 'description']);
+                $input = $request->only(['name', 'description', 'base_price_group_id', 'calc_type', 'calc_amount']);
                 $business_id = $request->session()->get('user.business_id');
 
                 $spg = SellingPriceGroup::where('business_id', $business_id)->findOrFail($id);
                 $spg->name = $input['name'];
                 $spg->description = $input['description'];
+                $spg->base_price_group_id = $input['base_price_group_id'];
+                $spg->calc_type = $input['calc_type'];
+                $spg->calc_amount = $input['calc_amount'];
                 $spg->save();
 
                 $output = ['success' => true,

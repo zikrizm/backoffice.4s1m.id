@@ -57,10 +57,14 @@
 
                             @if (config('constants.enable_product_bulk_edit'))
                                 &nbsp;
-                                {!! Form::open(['url' => action('ProductController@bulkEdit'), 'method' => 'post', 'id' => 'bulk_edit_form']) !!}
-                                {!! Form::hidden('selected_products', null, ['id' => 'selected_products_for_edit']) !!}
-                                <button type="submit" class="btn btn-xs btn-primary" id="edit-selected"> <i
-                                        class="fa fa-edit"></i>{{ __('lang_v1.bulk_edit') }}</button>
+                                {!! Form::open([
+                                    'url' => action('ProductBulkPriceUpdateController@index'),
+                                    'method' => 'post',
+                                    'id' => 'bulk_price_update_form',
+                                ]) !!}
+                                {!! Form::hidden('selected_products', null, ['id' => 'selected_products_for_price_update']) !!}
+                                <button type="submit" class="btn btn-xs btn-info" id="price-update-selected"> <i
+                                        class="fas fa-money-bill-alt"></i> Update Harga Grup</button>
                                 {!! Form::close() !!}
                             @endif
                             &nbsp;
