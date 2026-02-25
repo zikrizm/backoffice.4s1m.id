@@ -4,7 +4,7 @@
         {!! Form::open([
             'url' => action('SellingPriceGroupController@store'),
             'method' => 'post',
-            'id' => 'selling_price_group_form',
+            'id' => 'selling_price_group_form'
         ]) !!}
 
         <div class="modal-header">
@@ -24,7 +24,7 @@
                 {!! Form::textarea('description', null, [
                     'class' => 'form-control',
                     'placeholder' => __('lang_v1.description'),
-                    'rows' => 3,
+                    'rows' => 3
                 ]) !!}
             </div>
 
@@ -35,7 +35,7 @@
                 {!! Form::select('base_price_group_id', $price_groups, null, [
                     'class' => 'form-control select2',
                     'placeholder' => __('lang_v1.none'),
-                    'style' => 'width: 100%;',
+                    'style' => 'width: 100%;'
                 ]) !!}
             </div>
 
@@ -47,10 +47,10 @@
                         'percentage_discount' => __('lang_v1.percentage_discount'),
                         'percentage_markup' => __('lang_v1.percentage_markup'),
                         'fixed_discount' => __('lang_v1.fixed_discount'),
-                        'fixed_markup' => __('lang_v1.fixed_markup'),
+                        'fixed_markup' => __('lang_v1.fixed_markup')
                     ],
                     null,
-                    ['class' => 'form-control select2', 'placeholder' => __('lang_v1.none'), 'style' => 'width: 100%;'],
+                    ['class' => 'form-control select2', 'placeholder' => __('lang_v1.none'), 'style' => 'width: 100%;']
                 ) !!}
             </div>
 
@@ -58,7 +58,7 @@
                 {!! Form::label('calc_amount', __('lang_v1.calculation_amount') . ':') !!}
                 {!! Form::text('calc_amount', null, [
                     'class' => 'form-control input_number',
-                    'placeholder' => __('lang_v1.calculation_amount'),
+                    'placeholder' => __('lang_v1.calculation_amount')
                 ]) !!}
             </div>
         </div>
