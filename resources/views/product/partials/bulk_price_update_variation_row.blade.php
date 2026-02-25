@@ -23,8 +23,8 @@
                 [
                     'class' => 'form-control input-sm input_number price_group_input',
                     'data-group-name' => $group_name_lower,
-                    'data-group-id' => $k,
-                ],
+                    'data-group-id' => $k
+                ]
             ) !!}
         </td>
     @endforeach
