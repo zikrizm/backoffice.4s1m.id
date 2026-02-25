@@ -16,7 +16,7 @@
                     {!! Form::text('search_product', null, [
                         'class' => 'form-control',
                         'placeholder' => __('lang_v1.search_product_to_edit'),
-                        'id' => 'search_product',
+                        'id' => 'search_product'
                     ]) !!}
                 </div>
             </div>
@@ -36,7 +36,7 @@
                                     'class' => 'form-control select2',
                                     'placeholder' => 'Pilih Grup Harga',
                                     'style' => 'width: 100%;',
-                                    'id' => 'bulk_price_group',
+                                    'id' => 'bulk_price_group'
                                 ]) !!}
                             </div>
                         </div>
@@ -49,10 +49,10 @@
                                         'percentage_discount' => 'Diskon Persentase (%)',
                                         'percentage_markup' => 'Markup Persentase (%)',
                                         'fixed_discount' => 'Diskon Tetap',
-                                        'fixed_markup' => 'Markup Tetap',
+                                        'fixed_markup' => 'Markup Tetap'
                                     ],
                                     null,
-                                    ['class' => 'form-control select2', 'placeholder' => 'Pilih Jenis', 'id' => 'bulk_calc_type'],
+                                    ['class' => 'form-control select2', 'placeholder' => 'Pilih Jenis', 'id' => 'bulk_calc_type']
                                 ) !!}
                             </div>
                         </div>
@@ -62,7 +62,7 @@
                                 {!! Form::text('bulk_calc_amount', null, [
                                     'class' => 'form-control input_number',
                                     'placeholder' => 'Nilai',
-                                    'id' => 'bulk_calc_amount',
+                                    'id' => 'bulk_calc_amount'
                                 ]) !!}
                             </div>
                         </div>
@@ -80,7 +80,7 @@
         {!! Form::open([
             'url' => action('ProductBulkPriceUpdateController@bulkUpdate'),
             'method' => 'post',
-            'id' => 'bulk_price_update_form',
+            'id' => 'bulk_price_update_form'
         ]) !!}
         <div class="row">
             <div class="col-xs-12" id="product_list_body">
