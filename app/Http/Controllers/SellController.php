@@ -263,10 +263,8 @@ class SellController extends Controller
                 return view('sale_pos.partials.suspended_sales_modal')->with(compact('sales', 'is_tables_enabled', 'is_service_staff_enabled', 'transaction_sub_type'));
             }
 
-            $with[] = 'payment_lines';
-            if (!empty($with)) {
-                $sells->with($with);
-            }
+            $with = ['payment_lines', 'sell_lines', 'sell_lines.product', 'sell_lines.variations'];
+            $sells->with($with);
 
             //$business_details = $this->businessUtil->getDetails($business_id);
             if ($this->businessUtil->isModuleEnabled('subscription')) {
@@ -473,16 +471,26 @@ class SellController extends Controller
                     });
                 })
                 ->addColumn('payment_methods', function ($row) use ($payment_types) {
+                    $methods_details = [];
+                    foreach ($row->payment_lines as $pl) {
+                        $method_key = $pl->method;
+                        $method_name = isset($payment_types[$method_key]) ? $payment_types[$method_key] : ucfirst($method_key);
+                        $methods_details[] = [
+                            'method' => $method_name,
+                            'amount' => (float)$pl->amount
+                        ];
+                    }
+                    
                     $methods = array_unique($row->payment_lines->pluck('method')->toArray());
                     $count = count($methods);
                     $payment_method = '';
                     if ($count == 1) {
-                        $payment_method = $payment_types[$methods[0]];
+                        $payment_method = isset($payment_types[$methods[0]]) ? $payment_types[$methods[0]] : ucfirst($methods[0]);
                     } elseif ($count > 1) {
                         $payment_method = __('lang_v1.checkout_multi_pay');
                     }
 
-                    $html = !empty($payment_method) ? '<span class="payment-method" data-orig-value="' . $payment_method . '" data-status-name="' . $payment_method . '">' . $payment_method . '</span>' : '';
+                    $html = !empty($payment_method) ? '<span class="payment-method" data-orig-value="' . $payment_method . '" data-status-name="' . $payment_method . '" data-payment-details=\'' . json_encode($methods_details) . '\'>' . $payment_method . '</span>' : '';
                     
                     return $html;
                 })
@@ -498,6 +506,37 @@ class SellController extends Controller
                     }
 
                     return $status;
+                })
+                ->addColumn('sell_items_names', function ($row) {
+                    $names = [];
+                    foreach ($row->sell_lines as $line) {
+                        if (!empty($line->product)) {
+                            $product_name = $line->product->name;
+                            if (!empty($line->variations) && $line->variations->name != 'DUMMY') {
+                                $product_name .= ' - ' . $line->variations->name;
+                            }
+                            $names[] = $product_name;
+                        }
+                    }
+                    return implode("\n", $names);
+                })
+                ->addColumn('sell_items_qtys', function ($row) {
+                    $qtys = [];
+                    foreach ($row->sell_lines as $line) {
+                        if (!empty($line->product)) {
+                            $qtys[] = $this->transactionUtil->num_f($line->quantity, false, null, true);
+                        }
+                    }
+                    return implode("\n", $qtys);
+                })
+                ->addColumn('sell_items_prices', function ($row) {
+                    $prices = [];
+                    foreach ($row->sell_lines as $line) {
+                        if (!empty($line->product)) {
+                            $prices[] = $this->transactionUtil->num_f($line->unit_price_inc_tax, true);
+                        }
+                    }
+                    return implode("\n", $prices);
                 })
                 ->editColumn('so_qty_remaining', '{{@format_quantity($so_qty_remaining)}}')
                 ->setRowAttr([
