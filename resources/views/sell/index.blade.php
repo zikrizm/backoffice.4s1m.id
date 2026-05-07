@@ -74,7 +74,7 @@
                     <tr class="bg-gray font-17 footer-total text-center">
                         <td colspan="9"><strong>@lang('sale.total'):</strong></td>
                         <td class="footer_payment_status_count"></td>
-                        <td class="payment_method_count"></td>
+                        <td class="payment_method_count" style="min-width: 200px;"></td>
                         <td class="footer_sale_total"></td>
                         <td class="footer_total_paid"></td>
                         <td class="footer_total_remaining"></td>
@@ -411,7 +411,7 @@ $(document).ready( function(){
             { data: 'mobile', name: 'contacts.mobile'},
             { data: 'business_location', name: 'bl.name'},
             { data: 'payment_status', name: 'payment_status'},
-            { data: 'payment_methods', orderable: false, "searchable": false},
+            { data: 'payment_methods', orderable: false, "searchable": false, width: '200px'},
             { data: 'final_total', name: 'final_total'},
             { data: 'total_paid', name: 'total_paid', "searchable": false},
             { data: 'total_remaining', name: 'total_remaining'},
@@ -475,13 +475,16 @@ $(document).ready( function(){
                 }
             }
             
-            var pm_html = '<p class="text-left"><small>';
+            var pm_html = '<div class="text-left" style="font-size: 13px; font-weight: bold; line-height: 1.6; padding: 6px; border: 1px solid #dcdcdc; background-color: #fafafa; border-radius: 5px; min-width: 190px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);">';
             for (var m in payment_method_counts) {
                 var count = payment_method_counts[m];
                 var sum = payment_method_sums[m] || 0;
-                pm_html += m + ' - ' + count + ' (' + __currency_trans_from_en(sum, true) + ')</br>';
+                pm_html += '<div style="margin-bottom: 5px; padding-bottom: 3px; border-bottom: 1px dashed #ccc; display: flex; justify-content: space-between; gap: 10px;">' +
+                           '<span>' + m + ' (' + count + '):</span>' +
+                           '<span class="text-success" style="font-weight: 800; font-size: 14px;">' + __currency_trans_from_en(sum, true) + '</span>' +
+                           '</div>';
             }
-            pm_html += '</small></p>';
+            pm_html += '</div>';
             $('.payment_method_count').html(pm_html);
         },
         createdRow: function( row, data, dataIndex ) {
