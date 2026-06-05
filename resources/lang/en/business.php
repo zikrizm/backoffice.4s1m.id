@@ -13,6 +13,7 @@ return [
     'register_and_get_started_in_minutes' => 'Register and Get Started in minutes',
     'business_name' => 'Business Name',
     'start_date' => 'Start Date',
+    'end_date' => 'End Date',
     'currency' => 'Currency',
     'currency_placeholder' => 'Select Currency',
     'upload_logo' => 'Upload Logo',

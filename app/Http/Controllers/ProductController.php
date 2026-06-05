@@ -2273,7 +2273,13 @@ class ProductController extends Controller
         if (request()->ajax()) {
 
             $stock_details = $this->productUtil->getVariationStockDetails($business_id, $id, request()->input('location_id'));
-            $stock_history = $this->productUtil->getVariationStockHistory($business_id, $id, request()->input('location_id'));
+            $stock_history = $this->productUtil->getVariationStockHistory(
+                $business_id,
+                $id,
+                request()->input('location_id'),
+                request()->input('start_date'),
+                request()->input('end_date')
+            );
 
             return view('product.stock_history_details')
                 ->with(compact('stock_details', 'stock_history'));

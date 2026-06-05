@@ -13,6 +13,7 @@ return [
     'register_and_get_started_in_minutes' => 'Daftar dan Mulai dalam hitungan menit',
     'business_name' => 'Nama Bisnis',
     'start_date' => 'Tanggal Mulai',
+    'end_date' => 'Tanggal Akhir',
     'currency' => 'Mata Uang',
     'currency_placeholder' => 'Pilih Mata Uang',
     'upload_logo' => 'Unggah Logo',

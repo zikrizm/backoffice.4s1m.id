@@ -1953,7 +1953,7 @@ class ProductUtil extends Util
         return $output;
     }
 
-    public function getVariationStockHistory($business_id, $variation_id, $location_id)
+    public function getVariationStockHistory($business_id, $variation_id, $location_id, $start_date = null, $end_date = null)
     {
         $stock_history = Transaction::leftjoin(
             'transaction_sell_lines as sl',
@@ -2135,6 +2135,24 @@ class ProductUtil extends Util
             }
         }
 
-        return array_reverse($stock_history_array);
+        $stock_history_array = array_reverse($stock_history_array);
+
+        if (!empty($start_date) || !empty($end_date)) {
+            $stock_history_array = array_values(array_filter($stock_history_array, function ($item) use ($start_date, $end_date) {
+                $date = \Carbon::parse($item['date'])->format('Y-m-d');
+
+                if (!empty($start_date) && $date < $start_date) {
+                    return false;
+                }
+
+                if (!empty($end_date) && $date > $end_date) {
+                    return false;
+                }
+
+                return true;
+            }));
+        }
+
+        return $stock_history_array;
     }
 }
