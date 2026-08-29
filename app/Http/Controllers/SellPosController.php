@@ -1030,6 +1030,27 @@ class SellPosController extends Controller
 
                 $sales_order_ids = $transaction_before->sales_order_ids ?? [];
 
+                //Check if there is a open register, if no then redirect to Create Register screen.
+                if (!$is_direct_sale && $this->cashRegisterUtil->countOpenedRegister() == 0) {
+                    return redirect()->action('CashRegisterController@create');
+                }
+
+                $business_id = $request->session()->get('user.business_id');
+                $user_id = $request->session()->get('user.id');
+                $commsn_agnt_setting = $request->session()->get('business.sales_cmsn_agnt');
+
+                $discount = ['discount_type' => $input['discount_type'],
+                                'discount_amount' => $input['discount_amount']
+                            ];
+                $invoice_total = $this->productUtil->calculateInvoiceTotal($input['products'], $input['tax_rate_id'], $discount);
+
+                if (!isset($input['final_total']) || $input['final_total'] === '') {
+                    $shipping_charges = !empty($input['shipping_charges']) ? $this->transactionUtil->num_uf($input['shipping_charges']) : 0;
+                    $packing_charge = !empty($input['packing_charge']) ? $this->transactionUtil->num_uf($input['packing_charge']) : 0;
+                    $round_off_amount = !empty($input['round_off_amount']) ? $this->transactionUtil->num_uf($input['round_off_amount']) : 0;
+                    $input['final_total'] = $invoice_total['final_total'] + $shipping_charges + $packing_charge + $round_off_amount;
+                }
+
                 //Check Customer credit limit
                 $is_credit_limit_exeeded = $transaction_before->type == 'sell' ? $this->transactionUtil->isCustomerCreditLimitExeeded($input, $id) : false;
 
@@ -1046,20 +1067,6 @@ class SellPosController extends Controller
                             ->with('status', $output);
                     }
                 }
-
-                //Check if there is a open register, if no then redirect to Create Register screen.
-                if (!$is_direct_sale && $this->cashRegisterUtil->countOpenedRegister() == 0) {
-                    return redirect()->action('CashRegisterController@create');
-                }
-
-                $business_id = $request->session()->get('user.business_id');
-                $user_id = $request->session()->get('user.id');
-                $commsn_agnt_setting = $request->session()->get('business.sales_cmsn_agnt');
-
-                $discount = ['discount_type' => $input['discount_type'],
-                                'discount_amount' => $input['discount_amount']
-                            ];
-                $invoice_total = $this->productUtil->calculateInvoiceTotal($input['products'], $input['tax_rate_id'], $discount);
 
                 if (!empty($request->input('transaction_date'))) {
                     $input['transaction_date'] = $this->productUtil->uf_date($request->input('transaction_date'), true);
@@ -1266,13 +1273,13 @@ class SellPosController extends Controller
                         ->with('status', $output);
                 }
             } else {
-                if (!empty($transaction->sub_type) && $transaction->sub_type == 'repair') {
+                if (!empty($transaction_before->sub_type) && $transaction_before->sub_type == 'repair') {
                     return redirect()
                         ->action('\Modules\Repair\Http\Controllers\RepairController@index')
                         ->with('status', $output);
                 }
 
-                if ($transaction->type == 'sales_order') {
+                if ($transaction_before->type == 'sales_order') {
                     return redirect()
                     ->action('SalesOrderController@index')
                     ->with('status', $output);

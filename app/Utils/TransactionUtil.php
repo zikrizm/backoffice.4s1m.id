@@ -3612,6 +3612,10 @@ class TransactionUtil extends Util
             return false;
         }
 
+        if (!isset($input['final_total']) || $input['final_total'] === '') {
+            return false;
+        }
+
         $final_total = $uf_number ? $this->num_uf($input['final_total']) : $input['final_total'];
         $curr_total_payment = 0;
         $is_credit_sale = isset($input['is_credit_sale']) && $input['is_credit_sale'] == 1 ? true : false;
